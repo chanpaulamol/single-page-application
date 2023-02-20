@@ -1,3 +1,13 @@
+let state = {
+    inputValue:"",
+    hash: location.hash,
+};
+
+
+function setState(newState){
+    state = {...state, ...newState};
+    render();
+}
 
 function Link(props){
         const link = document.createElement("a");
@@ -5,8 +15,10 @@ function Link(props){
         link.textContent = props.label;
         link.onclick =  function(event){
         event.preventDefault();
-        history.pushState(null,"", event.target.href); 
-
+        console.log(event.target.href)
+        const url = new URL(event.target.href)
+        setState({hash: url.hash});
+        history.pushState(null, "", event.target.href)
         render();
   };
    return link;
@@ -47,14 +59,32 @@ function AboutScreen(){
 function HomeScreen(){
         const navbar = NavBar();
         const textPreview = document.createElement("p")
+        textPreview.textContent = state.inputValue;
+
         const input = document.createElement("input");
+        input.id = "input";
+        input.value = state.inputValue;
+
         input.oninput = function(event){
-        textPreview.textContent = event.target.value;
+              state.inputValue = event.target.value;
+              setState({
+                inputValue: event.target.value
+              });
         };
         input.placeholder = "Enter your name";
+
+        const buttonClear = document.createElement("button");
+        buttonClear.textContent = "Clear";
+
+        buttonClear.onclick = function(){
+           setState({
+                inputValue: ""
+              });
+        }
         const div = document.createElement("div");
         div.append(navbar);
         div.append(input);
+        div.append(buttonClear);
         div.append(textPreview);
         return div;
     }
@@ -65,22 +95,29 @@ function App(){
     const homeScreen =  HomeScreen();
     const aboutScreen = AboutScreen();
 
-
-    if (location.hash == "#about"){
+    if (state.hash == "#about"){
 
         return aboutScreen;
-    
-    } else if (location.hash == "#home"){
+    } else if (state.hash == "#home"){
      return homeScreen;
     }
-
 }
 
 function render(){
     const root = document.getElementById("root");
     const app = App();
+    const focusedElementId = document.activeElement.id;
+    const focusedElementSelectionStart =document.activeElement.selectionStart;
+     const focusedElementSelectEnd =document.activeElement.selectionEnd;
     root.innerHTML = "";
     root.append(app);  
+
+    if (focusedElementId){
+        const focusedElement = document.getElementById(focusedElementId)
+        focusedElement.focus();
+        focusedElement.focusedElementSelectionStart;
+        focusedElement.focusedElementSelectEnd;
+    }
 }
 
 render();
